@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly To-Do List</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --navy-blue: #001f3f;
+            --dark-green: #006400;
+            --light-green: #a8d8a8;
+            --off-white: #f5f5f5;
+            --highlight: #e6f2e6;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--off-white);
+            color: var(--navy-blue);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--navy-blue);
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--dark-green);
+            padding-bottom: 10px;
+        }
+        
+        .days-tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .day-tab {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 12px 0;
+            background-color: var(--light-green);
+            border: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--navy-blue);
+            transition: all 0.3s;
+            margin: 0 2px;
+        }
+        
+        .day-tab.active {
+            background-color: var(--dark-green);
+            color: white;
+        }
+        
+        .day-tab:hover:not(.active) {
+            background-color: var(--highlight);
+        }
+        
+        .day-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            background-color: white;
+        }
+        
+        .day-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .input-section {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .task-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .task-input:focus {
+            border-color: var(--dark-green);
+            outline: none;
+        }
+        
+        .add-btn {
+            background-color: var(--dark-green);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .add-btn:hover {
+            background-color: var(--navy-blue);
+        }
+        
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--light-green);
+            border-radius: 5px;
+        }
+        
+        .filter-btn {
+            background: none;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            color: var(--navy-blue);
+            font-weight: bold;
+            border-radius: 3px;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--dark-green);
+            color: white;
+        }
+        
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: white;
+            border-left: 5px solid var(--dark-green);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        
+        .task-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .task-item.completed {
+            opacity: 0.7;
+            border-left-color: #ccc;
+        }
+        
+        .task-text {
+            flex: 1;
+            margin: 0 15px;
+            word-break: break-word;
+        }
+        
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #777;
+        }
+        
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .delete-btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background-color: #ff5252;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--light-green);
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--navy-blue);
+        }
+        
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .day-title {
+            font-size: 1.5em;
+            color: var(--navy-blue);
+            margin: 0;
+        }
+        
+        .day-date {
+            color: #666;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .days-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .day-tab {
+                min-width: calc(50% - 4px);
+                margin-bottom: 5px;
+                border-radius: 5px;
+            }
+            
+            .input-section {
+                flex-direction: column;
+            }
+            
+            .add-btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weekly To-Do List</h1>
+        
+        <div class="days-tabs" id="days-tabs">
+            <button class="day-tab active" data-day="monday">Monday</button>
+            <button class="day-tab" data-day="tuesday">Tuesday</button>
+            <button class="day-tab" data-day="wednesday">Wednesday</button>
+            <button class="day-tab" data-day="thursday">Thursday</button>
+            <button class="day-tab" data-day="friday">Friday</button>
+            <button class="day-tab" data-day="saturday">Saturday</button>
+            <button class="day-tab" data-day="sunday">Sunday</button>
+        </div>
+        
+        <div id="day-contents">
+            <!-- Monday -->
+            <div class="day-content active" id="monday-content">
+                <div class="day-header">
+                    <h2 class="day-title">Monday</h2>
+                    <span class="day-date" id="monday-date"></span>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" class="task-input" placeholder="Add a task for Monday...">
+                    <button class="add-btn" data-day="monday">Add Task</button>
+                </div>
+                
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                
+                <ul class="task-list" id="monday-tasks"></ul>
+                
+                <div class="stats">
+                    <span class="total-tasks">0</span> tasks | 
+                    <span class="completed-tasks">0</span> completed
+                </div>
+            </div>
+            
+            <!-- Tuesday -->
+            <div class="day-content" id="tuesday-content">
+                <div class="day-header">
+                    <h2 class="day-title">Tuesday</h2>
+                    <span class="day-date" id="tuesday-date"></span>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" class="task-input" placeholder="Add a task for Tuesday...">
+                    <button class="add-btn" data-day="tuesday">Add Task</button>
+                </div>
+                
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                
+                <ul class="task-list" id="tuesday-tasks"></ul>
+                
+                <div class="stats">
+                    <span class="total-tasks">0</span> tasks | 
+                    <span class="completed-tasks">0</span> completed
+                </div>
+            </div>
+            
+            <!-- Wednesday -->
+            <div class="day-content" id="wednesday-content">
+                <div class="day-header">
+                    <h2 class="day-title">Wednesday</h2>
+                    <span class="day-date" id="wednesday-date"></span>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" class="task-input" placeholder="Add a task for Wednesday...">
+                    <button class="add-btn" data-day="wednesday">Add Task</button>
+                </div>
+                
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                
+                <ul class="task-list" id="wednesday-tasks"></ul>
+                
+                <div class="stats">
+                    <span class="total-tasks">0</span> tasks | 
+                    <span class="completed-tasks">0</span> completed
+                </div>
+            </div>
+            
+            <!-- Thursday -->
+            <div class="day-content" id="thursday-content">
+                <div class="day-header">
+                    <h2 class="day-title">Thursday</h2>
+                    <span class="day-date" id="thursday-date"></span>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" class="task-input" placeholder="Add a task for Thursday...">
+                    <button class="add-btn" data-day="thursday">Add Task</button>
+                </div>
+                
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                
+                <ul class="task-list" id="thursday-tasks"></ul>
+                
+                <div class="stats">
+                    <span class="total-tasks">0</span> tasks | 
+                    <span class="completed-tasks">0</span> completed
+                </div>
+            </div>
+            
+            <!-- Friday -->
+            <div class="day-content" id="friday-content">
+                <div class="day-header">
+                    <h2 class="day-title">Friday</h2>
+                    <span class="day-date" id="friday-date"></span>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" class="task-input" placeholder="Add a task for Friday...">
+                    <button class="add-btn" data-day="friday">Add Task</button>
+                </div>
+                
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                
+                <ul class="task-list" id="friday-tasks"></ul>
+                
+                <div class="stats">
+                    <span class="total-tasks">0</span> tasks | 
+                    <span class="completed-tasks">0</span> completed
+                </div>
+            </div>
+            
+            <!-- Saturday -->
+            <div class="day-content" id="saturday-content">
+                <div class="day-header">
+                    <h2 class="day-title">Saturday</h2>
+                    <span class="day-date" id="saturday-date"></span>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" class="task-input" placeholder="Add a task for Saturday...">
+                    <button class="add-btn" data-day="saturday">Add Task</button>
+                </div>
+                
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                
+                <ul class="task-list" id="saturday-tasks"></ul>
+                
+                <div class="stats">
+                    <span class="total-tasks">0</span> tasks | 
+                    <span class="completed-tasks">0</span> completed
+                </div>
+            </div>
+            
+            <!-- Sunday -->
+            <div class="day-content" id="sunday-content">
+                <div class="day-header">
+                    <h2 class="day-title">Sunday</h2>
+                    <span class="day-date" id="sunday-date"></span>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" class="task-input" placeholder="Add a task for Sunday...">
+                    <button class="add-btn" data-day="sunday">Add Task</button>
+                </div>
+                
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                
+                <ul class="task-list" id="sunday-tasks"></ul>
+                
+                <div class="stats">
+                    <span class="total-tasks">0</span> tasks | 
+                    <span class="completed-tasks">0</span> completed
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Set up dates for the current week
+            setupWeekDates();
+            
+            // Initialize day tabs
+            $('.day-tab').click(function() {
+                const day = $(this).data('day');
+                switchDay(day);
+            });
+            
+            // Initialize add task buttons
+            $('.add-btn').click(function() {
+                const day = $(this).data('day');
+                addTask(day);
+            });
+            
+            // Initialize enter key for task input
+            $('.task-input').keypress(function(e) {
+                if (e.which === 13) {
+                    const day = $(this).closest('.day-content').attr('id').replace('-content', '');
+                    addTask(day);
+                }
+            });
+            
+            // Initialize filter buttons
+            $('.filter-btn').click(function() {
+                const filter = $(this).data('filter');
+                const day = $(this).closest('.day-content').attr('id').replace('-content', '');
+                
+                $(this).siblings().removeClass('active');
+                $(this).addClass('active');
+                
+                filterTasks(day, filter);
+            });
+            
+            // Load all tasks
+            loadAllTasks();
+            
+            // Function to switch between days
+            function switchDay(day) {
+                $('.day-tab').removeClass('active');
+                $(`.day-tab[data-day="${day}"]`).addClass('active');
+                
+                $('.day-content').removeClass('active');
+                $(`#${day}-content`).addClass('active');
+            }
+            
+            // Function to add a new task
+            function addTask(day) {
+                const input = $(`#${day}-content .task-input`);
+                const taskText = input.val().trim();
+                
+                if (taskText) {
+                    const taskId = Date.now();
+                    const task = {
+                        id: taskId,
+                        text: taskText,
+                        completed: false,
+                        day: day
+                    };
+                    
+                    // Add to localStorage
+                    const tasks = getTasks();
+                    tasks.push(task);
+                    saveTasks(tasks);
+                    
+                    // Add to DOM
+                    addTaskToDOM(task);
+                    
+                    // Clear input
+                    input.val('');
+                    
+                    // Update stats
+                    updateStats(day);
+                }
+            }
+            
+            // Function to add task to DOM
+            function addTaskToDOM(task) {
+                const taskItem = $(`
+                    <li class="task-item" data-id="${task.id}">
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                        <span class="task-text ${task.completed ? 'completed' : ''}">${task.text}</span>
+                        <button class="delete-btn">×</button>
+                    </li>
+                `);
+                
+                $(`#${task.day}-tasks`).append(taskItem);
+                
+                // Add event listeners for the new task
+                taskItem.find('.task-checkbox').change(function() {
+                    toggleTaskStatus(task.day, task.id);
+                });
+                
+                taskItem.find('.delete-btn').click(function() {
+                    deleteTask(task.day, task.id);
+                });
+            }
+            
+            // Function to toggle task status
+            function toggleTaskStatus(day, taskId) {
+                const tasks = getTasks();
+                
+                const updatedTasks = tasks.map(task => {
+                    if (task.id == taskId) {
+                        task.completed = !task.completed;
+                    }
+                    return task;
+                });
+                
+                saveTasks(updatedTasks);
+                
+                // Update DOM
+                const taskItem = $(`.task-item[data-id="${taskId}"]`);
+                taskItem.find('.task-text').toggleClass('completed');
+                taskItem.toggleClass('completed');
+                
+                // Update stats
+                updateStats(day);
+                
+                // Reapply filter if needed
+                const currentFilter = $(`#${day}-content .filter-btn.active`).data('filter');
+                filterTasks(day, currentFilter);
+            }
+            
+            // Function to delete a task
+            function deleteTask(day, taskId) {
+                const tasks = getTasks().filter(task => task.id != taskId);
+                
+                saveTasks(tasks);
+                $(`.task-item[data-id="${taskId}"]`).remove();
+                
+                // Update stats
+                updateStats(day);
+            }
+            
+            // Function to filter tasks
+            function filterTasks(day, filter) {
+                const tasks = getTasks().filter(task => task.day === day);
+                
+                // Hide all tasks first
+                $(`#${day}-tasks .task-item`).hide();
+                
+                tasks.forEach(task => {
+                    const shouldShow = 
+                        filter === 'all' ||
+                        (filter === 'active' && !task.completed) ||
+                        (filter === 'completed' && task.completed);
+                    
+                    if (shouldShow) {
+                        $(`#${day}-tasks .task-item[data-id="${task.id}"]`).show();
+                    }
+                });
+            }
+            
+            // Function to load all tasks
+            function loadAllTasks() {
+                const tasks = getTasks();
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                
+                // Clear all task lists
+                days.forEach(day => {
+                    $(`#${day}-tasks`).empty();
+                });
+                
+                // Add each task to the DOM
+                tasks.forEach(task => {
+                    addTaskToDOM(task);
+                });
+                
+                // Update stats for all days
+                days.forEach(day => {
+                    updateStats(day);
+                });
+            }
+            
+            // Function to get tasks from localStorage
+            function getTasks() {
+                const tasksJSON = localStorage.getItem('weekly-tasks');
+                return tasksJSON ? JSON.parse(tasksJSON) : [];
+            }
+            
+            // Function to save tasks to localStorage
+            function saveTasks(tasks) {
+                localStorage.setItem('weekly-tasks', JSON.stringify(tasks));
+            }
+            
+            // Function to update task statistics
+            function updateStats(day) {
+                const tasks = getTasks().filter(task => task.day === day);
+                const totalTasks = tasks.length;
+                const completedTasks = tasks.filter(task => task.completed).length;
+                
+                $(`#${day}-content .total-tasks`).text(totalTasks);
+                $(`#${day}-content .completed-tasks`).text(completedTasks);
+            }
+            
+            // Function to set up dates for the current week
+            function setupWeekDates() {
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                const today = new Date();
+                const currentDay = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+                
+                // Find Monday of this week
+                const monday = new Date(today);
+                monday.setDate(today.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
+                
+                // Set dates for each day
+                days.forEach((day, index) => {
+                    const date = new Date(monday);
+                    date.setDate(monday.getDate() + index);
+                    
+                    const dateString = date.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    
+                    $(`#${day}-date`).text(dateString);
+                });
+                
+                // Switch to today's tab if it's a weekday
+                if (currentDay >= 1 && currentDay <= 5) {
+                    const todayTab = days[currentDay - 1];
+                    switchDay(todayTab);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
