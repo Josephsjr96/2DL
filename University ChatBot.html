@@ -3,32 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>University Helpdesk Chatbot</title>
+    <title>Universität Trier Helpdesk Assistant</title>
     <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        /* Chatbot Container */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f5f5f5; color: #333; line-height: 1.6; }
+
         .chatbot-container {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 380px;
-            height: 500px;
+            width: 400px;
+            height: 560px;
             background-color: white;
             border-radius: 15px;
-            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -37,193 +25,157 @@
             visibility: hidden;
             transition: all 0.3s ease;
             z-index: 1000;
+            border: 3px solid #003366;
         }
-        
-        .chatbot-container.active {
-            transform: translateY(0);
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        /* Chatbot Header */
+        .chatbot-container.active { transform: translateY(0); opacity: 1; visibility: visible; }
+
         .chatbot-header {
-            background-color: #003366;
+            background: linear-gradient(135deg, #003366, #00509e);
             color: white;
-            padding: 15px 20px;
+            padding: 18px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
         .chatbot-header h3 {
             font-weight: 600;
             font-size: 18px;
+            display: flex;
+            align-items: center;
         }
-        
-        .chatbot-header .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
+        .chatbot-header h3::before {
+            content: "🎓";
+            margin-right: 10px;
+            font-size: 24px;
         }
-        
-        /* Chatbot Body */
+        .chatbot-header .close-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+
         .chatbot-body {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            background-color: #f9f9f9;
+            background-color: #f8f9fa;
         }
-        
         .message {
             margin-bottom: 15px;
             max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.4;
-            position: relative;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 14.5px;
+            line-height: 1.5;
         }
-        
         .bot-message {
-            background-color: #e6e6e6;
-            color: #333;
+            background-color: #e9ecef;
+            color: #212529;
             border-top-left-radius: 5px;
             align-self: flex-start;
             margin-right: auto;
         }
-        
         .user-message {
             background-color: #003366;
             color: white;
             border-top-right-radius: 5px;
             align-self: flex-end;
             margin-left: auto;
-            text-align: right;
         }
-        
         .quick-reply {
             display: inline-block;
-            background-color: #f0f0f0;
-            color: #333;
-            padding: 8px 12px;
-            margin: 5px;
-            border-radius: 20px;
-            font-size: 13px;
+            background-color: #e7f3ff;
+            color: #003366;
+            padding: 10px 16px;
+            margin: 6px 8px 6px 0;
+            border-radius: 25px;
+            font-size: 13.5px;
             cursor: pointer;
             transition: all 0.2s;
+            border: 1px solid #b3d9ff;
         }
-        
         .quick-reply:hover {
             background-color: #003366;
             color: white;
         }
-        
         .admin-connect {
             background-color: #ffcc00;
             color: #003366;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 15px 0;
             font-weight: bold;
             text-align: center;
             cursor: pointer;
         }
-        
         .typing-indicator {
             display: flex;
-            padding: 10px 15px;
-            background-color: #e6e6e6;
-            border-radius: 18px;
+            padding: 12px 18px;
+            background-color: #e9ecef;
+            border-radius: 20px;
             width: fit-content;
             margin-bottom: 15px;
         }
-        
         .typing-dot {
-            width: 8px;
-            height: 8px;
+            width: 9px;
+            height: 9px;
             background-color: #666;
             border-radius: 50%;
-            margin: 0 2px;
+            margin: 0 3px;
             animation: typingAnimation 1.4s infinite ease-in-out;
         }
-        
-        .typing-dot:nth-child(1) {
-            animation-delay: 0s;
-        }
-        
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes typingAnimation {
-            0%, 60%, 100% {
-                transform: translateY(0);
-            }
-            30% {
-                transform: translateY(-5px);
-            }
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
         }
-        
-        /* Chatbot Footer */
+
         .chatbot-footer {
             padding: 15px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid #ddd;
             display: flex;
             align-items: center;
+            background-color: white;
         }
-        
         .chatbot-footer input {
             flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
+            padding: 12px 18px;
+            border: 2px solid #ddd;
             border-radius: 30px;
             outline: none;
-            font-size: 14px;
+            font-size: 14.5px;
         }
-        
+        .chatbot-footer input:focus {
+            border-color: #003366;
+        }
         .chatbot-footer button {
             background-color: #003366;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            margin-left: 10px;
+            width: 44px;
+            height: 44px;
+            margin-left: 12px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 18px;
         }
-        
-        /* Chatbot Toggle Button */
+
         .chatbot-toggle {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 60px;
-            height: 60px;
-            background-color: #003366;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #003366, #00509e);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
             z-index: 999;
+            font-size: 28px;
         }
-        
-        .chatbot-toggle i {
-            font-size: 24px;
-        }
-        
-        /* Admin Connection Modal */
+
         .admin-modal {
             position: fixed;
             top: 0;
@@ -239,12 +191,10 @@
             visibility: hidden;
             transition: all 0.3s;
         }
-        
         .admin-modal.active {
             opacity: 1;
             visibility: visible;
         }
-        
         .admin-modal-content {
             background-color: white;
             width: 400px;
@@ -253,473 +203,244 @@
             overflow: hidden;
             box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
         }
-        
         .admin-modal-header {
             background-color: #003366;
             color: white;
             padding: 15px 20px;
             font-weight: 600;
         }
-        
         .admin-modal-body {
             padding: 20px;
         }
-        
-        .admin-modal-body p {
-            margin-bottom: 15px;
-        }
-        
-        .admin-modal-footer {
-            padding: 15px 20px;
-            display: flex;
-            justify-content: flex-end;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .admin-modal-footer button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        
-        .admin-modal-cancel {
-            background-color: #e0e0e0;
-            margin-right: 10px;
-        }
-        
-        .admin-modal-connect {
-            background-color: #003366;
-            color: white;
-        }
-        
-        /* Connection Status */
-        .connection-status {
-            display: flex;
-            align-items: center;
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        
-        .status-connected {
-            background-color: #4CAF50;
-        }
-        
-        .status-disconnected {
-            background-color: #F44336;
-        }
-        
-        /* Help Options */
-        .help-options {
-            display: flex;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        
-        .help-option {
-            background-color: #f0f0f0;
+        .admin-modal-body input {
+            width: 100%;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 10px;
-            margin: 5px;
-            width: calc(50% - 10px);
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
+            margin-bottom: 15px;
         }
-        
-        .help-option:hover {
+        .admin-modal-footer {
+            padding: 15px 20px;
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+        .admin-modal-footer button {
+            padding: 8px 16px;
+            margin-left: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .admin-modal-footer #cancelAdmin {
+            background-color: #ddd;
+            border: none;
+        }
+        .admin-modal-footer #connectAdmin {
             background-color: #003366;
             color: white;
-            border-color: #003366;
-        }
-        
-        /* Responsive Adjustments */
-        @media (max-width: 480px) {
-            .chatbot-container {
-                width: 90%;
-                height: 70vh;
-                right: 5%;
-                bottom: 80px;
-            }
-            
-            .help-option {
-                width: 100%;
-            }
+            border: none;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Chatbot Toggle Button -->
-    <div class="chatbot-toggle" id="chatbotToggle">
-        <i class="fas fa-comments"></i>
+
+<div class="chatbot-toggle" id="chatbotToggle">💬</div>
+
+<div class="chatbot-container" id="chatbotContainer">
+    <div class="chatbot-header">
+        <h3>Universität Trier Assistant</h3>
+        <button class="close-btn" id="closeChatbot">×</button>
     </div>
-    
-    <!-- Chatbot Container -->
-    <div class="chatbot-container" id="chatbotContainer">
-        <div class="chatbot-header">
-            <h3>University Helpdesk</h3>
-            <button class="close-btn" id="closeChatbot"><i class="fas fa-times"></i></button>
-        </div>
-        
-        <div class="chatbot-body" id="chatbotBody">
-            <!-- Messages will be inserted here by JavaScript -->
-        </div>
-        
-        <div class="chatbot-footer">
-            <input type="text" id="userInput" placeholder="Type your message here..." autocomplete="off">
-            <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
-        </div>
+    <div class="chatbot-body" id="chatbotBody">
+        <div class="bot-message">Welcome to Universität Trier! 🎓<br><br>I'm your virtual assistant for applicants and students.<br><br>How can I help you today?</div>
     </div>
-    
-    <!-- Admin Connection Modal -->
-    <div class="admin-modal" id="adminModal">
-        <div class="admin-modal-content">
-            <div class="admin-modal-header">
-                Connect with Helpdesk Admin
-            </div>
-            <div class="admin-modal-body">
-                <p>You're about to connect with a live helpdesk administrator. Please describe your issue briefly so we can assist you better.</p>
-                <textarea id="adminIssue" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: none;" placeholder="Describe your issue..."></textarea>
-                <div class="connection-status">
-                    <div class="status-indicator status-connected"></div>
-                    <span id="adminStatus">2 administrators available now</span>
-                </div>
-            </div>
-            <div class="admin-modal-footer">
-                <button class="admin-modal-cancel" id="cancelAdmin">Cancel</button>
-                <button class="admin-modal-connect" id="connectAdmin">Connect</button>
-            </div>
+    <div class="chatbot-footer">
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button id="sendButton">➤</button>
+    </div>
+</div>
+
+<!-- Admin Modal -->
+<div class="admin-modal" id="adminModal">
+    <div class="admin-modal-content">
+        <div class="admin-modal-header">Connect with Live Advisor</div>
+        <div class="admin-modal-body">
+            <p>Please briefly describe your question:</p>
+            <input type="text" id="adminIssue" placeholder="e.g., Visa requirements or specific program details">
+        </div>
+        <div class="admin-modal-footer">
+            <button id="cancelAdmin">Cancel</button>
+            <button id="connectAdmin">Connect</button>
         </div>
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const chatbotToggle = document.getElementById('chatbotToggle');
-            const chatbotContainer = document.getElementById('chatbotContainer');
-            const closeChatbot = document.getElementById('closeChatbot');
-            const chatbotBody = document.getElementById('chatbotBody');
-            const userInput = document.getElementById('userInput');
-            const sendButton = document.getElementById('sendButton');
-            const adminModal = document.getElementById('adminModal');
-            const cancelAdmin = document.getElementById('cancelAdmin');
-            const connectAdmin = document.getElementById('connectAdmin');
-            const adminIssue = document.getElementById('adminIssue');
-            const adminStatus = document.getElementById('adminStatus');
-            
-            // State variables
-            let isAdminConnected = false;
-            let adminConnectionTimeout;
-            
-            // Initialize chatbot
-            function initChatbot() {
-                // Show welcome message after a short delay
-                setTimeout(() => {
-                    addBotMessage("Hello! I'm your University Helpdesk assistant. How can I help you today?");
-                    
-                    // Show quick reply options
-                    setTimeout(() => {
-                        showQuickReplies([
-                            "Admissions",
-                            "Course information",
-                            "Financial aid",
-                            "Campus facilities",
-                            "Talk to a human"
-                        ]);
-                    }, 500);
-                }, 500);
-            }
-            
-            // Toggle chatbot visibility
-            chatbotToggle.addEventListener('click', function() {
-                chatbotContainer.classList.toggle('active');
-                if (chatbotContainer.classList.contains('active')) {
-                    initChatbot();
-                }
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotContainer = document.getElementById('chatbotContainer');
+        const closeChatbot = document.getElementById('closeChatbot');
+        const chatbotBody = document.getElementById('chatbotBody');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const adminModal = document.getElementById('adminModal');
+        const cancelAdmin = document.getElementById('cancelAdmin');
+        const connectAdmin = document.getElementById('connectAdmin');
+        const adminIssue = document.getElementById('adminIssue');
+
+        let isAdminConnected = false;
+        let adminConnectionTimeout;
+
+        chatbotToggle.addEventListener('click', () => chatbotContainer.classList.toggle('active'));
+        closeChatbot.addEventListener('click', () => chatbotContainer.classList.remove('active'));
+
+        function addBotMessage(message) {
+            const msg = document.createElement('div');
+            msg.classList.add('bot-message');
+            msg.innerHTML = message.replace(/\n/g, '<br>');
+            chatbotBody.appendChild(msg);
+            scrollToBottom();
+        }
+
+        function addUserMessage(message) {
+            const msg = document.createElement('div');
+            msg.classList.add('user-message');
+            msg.textContent = message;
+            chatbotBody.appendChild(msg);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.classList.add('typing-indicator');
+            indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            indicator.id = "typing";
+            chatbotBody.appendChild(indicator);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing');
+            if (indicator) indicator.remove();
+        }
+
+        function showQuickReplies(options) {
+            const wrapper = document.createElement('div');
+            options.forEach(option => {
+                const btn = document.createElement('div');
+                btn.classList.add('quick-reply');
+                btn.textContent = option;
+                btn.onclick = () => {
+                    addUserMessage(option);
+                    processUserInput(option.toLowerCase());
+                };
+                wrapper.appendChild(btn);
             });
-            
-            closeChatbot.addEventListener('click', function() {
-                chatbotContainer.classList.remove('active');
-            });
-            
-            // Add a message to the chat
-            function addMessage(text, isUser) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message');
-                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
-                messageDiv.textContent = text;
-                chatbotBody.appendChild(messageDiv);
-                scrollToBottom();
-            }
-            
-            // Add bot message
-            function addBotMessage(text) {
-                addMessage(text, false);
-            }
-            
-            // Add user message
-            function addUserMessage(text) {
-                addMessage(text, true);
-            }
-            
-            // Show typing indicator
-            function showTyping() {
-                const typingDiv = document.createElement('div');
-                typingDiv.classList.add('typing-indicator');
-                typingDiv.id = 'typingIndicator';
-                
-                for (let i = 0; i < 3; i++) {
-                    const dot = document.createElement('div');
-                    dot.classList.add('typing-dot');
-                    typingDiv.appendChild(dot);
-                }
-                
-                chatbotBody.appendChild(typingDiv);
-                scrollToBottom();
-            }
-            
-            // Hide typing indicator
-            function hideTyping() {
-                const typingIndicator = document.getElementById('typingIndicator');
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-            }
-            
-            // Show quick reply options
-            function showQuickReplies(options) {
-                const quickRepliesDiv = document.createElement('div');
-                quickRepliesDiv.style.marginTop = '10px';
-                
-                options.forEach(option => {
-                    const quickReply = document.createElement('span');
-                    quickReply.classList.add('quick-reply');
-                    quickReply.textContent = option;
-                    quickReply.addEventListener('click', function() {
-                        handleQuickReply(option);
-                    });
-                    quickRepliesDiv.appendChild(quickReply);
-                });
-                
-                chatbotBody.appendChild(quickRepliesDiv);
-                scrollToBottom();
-            }
-            
-            // Handle quick reply selection
-            function handleQuickReply(option) {
-                addUserMessage(option);
-                
-                // Remove all quick replies
-                document.querySelectorAll('.quick-reply').forEach(el => el.remove());
-                
-                // Process the selected option
-                processUserInput(option);
-            }
-            
-            // Show help options
-            function showHelpOptions() {
-                const optionsDiv = document.createElement('div');
-                optionsDiv.classList.add('help-options');
-                
-                const options = [
-                    { icon: 'fa-graduation-cap', text: 'Admissions' },
-                    { icon: 'fa-book', text: 'Courses' },
-                    { icon: 'fa-dollar-sign', text: 'Financial Aid' },
-                    { icon: 'fa-building', text: 'Campus Info' },
-                    { icon: 'fa-calendar', text: 'Events' },
-                    { icon: 'fa-user', text: 'Student Services' }
-                ];
-                
-                options.forEach(option => {
-                    const optionDiv = document.createElement('div');
-                    optionDiv.classList.add('help-option');
-                    
-                    const icon = document.createElement('i');
-                    icon.classList.add('fas', option.icon);
-                    icon.style.marginRight = '5px';
-                    
-                    optionDiv.appendChild(icon);
-                    optionDiv.appendChild(document.createTextNode(option.text));
-                    
-                    optionDiv.addEventListener('click', function() {
-                        addUserMessage(option.text);
-                        processUserInput(option.text);
-                    });
-                    
-                    optionsDiv.appendChild(optionDiv);
-                });
-                
-                chatbotBody.appendChild(optionsDiv);
-                scrollToBottom();
-            }
-            
-            // Process user input
-            function processUserInput(input) {
-                showTyping();
-                
-                // Simulate processing delay
-                setTimeout(() => {
-                    hideTyping();
-                    
-                    input = input.toLowerCase();
-                    
-                    if (input.includes('admin') || input.includes('human') || input.includes('talk to') || input.includes('representative')) {
-                        showAdminConnectOption();
-                    } 
-                    else if (input.includes('admission') || input.includes('apply') || input.includes('application')) {
-                        addBotMessage("Our admissions process is straightforward. Here's what you need to know:");
-                        addBotMessage("1. Complete the online application form\n2. Submit required documents\n3. Pay the application fee\n4. Wait for review\n\nWould you like more details on any of these steps?");
-                    }
-                    else if (input.includes('course') || input.includes('program') || input.includes('subject')) {
-                        addBotMessage("We offer a wide range of courses across various disciplines. Our most popular programs are:");
-                        addBotMessage("- Computer Science\n- Business Administration\n- Engineering\n- Psychology\n- Biology\n\nYou can find detailed information about each program on our website or I can provide more details about a specific program.");
-                    }
-                    else if (input.includes('financial') || input.includes('aid') || input.includes('scholarship') || input.includes('tuition')) {
-                        addBotMessage("We have several financial aid options available:");
-                        addBotMessage("- Merit-based scholarships\n- Need-based grants\n- Student loans\n- Work-study programs\n\nThe financial aid office can provide personalized advice. Would you like me to connect you with them?");
-                    }
-                    else if (input.includes('campus') || input.includes('facility') || input.includes('library') || input.includes('dorm')) {
-                        addBotMessage("Our campus features state-of-the-art facilities including:");
-                        addBotMessage("- Modern library with 24/7 access\n- Sports complex\n- Student center with dining options\n- Research labs\n- Comfortable dormitories\n\nIs there a specific facility you'd like to know more about?");
-                    }
-                    else if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
-                        addBotMessage("Hello again! How can I assist you today?");
-                        showQuickReplies([
-                            "Admissions",
-                            "Course information",
-                            "Financial aid",
-                            "Campus facilities",
-                            "Talk to a human"
-                        ]);
-                    }
-                    else {
-                        addBotMessage("I'm not sure I understand. Could you rephrase your question or choose from these options?");
-                        showHelpOptions();
-                    }
-                }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
-            }
-            
-            // Show admin connect option
-            function showAdminConnectOption() {
-                const connectDiv = document.createElement('div');
-                connectDiv.classList.add('admin-connect');
-                connectDiv.textContent = "Click here to connect with a live helpdesk administrator";
-                connectDiv.addEventListener('click', function() {
-                    showAdminModal();
-                });
-                
-                chatbotBody.appendChild(connectDiv);
-                scrollToBottom();
-            }
-            
-            // Show admin connection modal
-            function showAdminModal() {
-                adminModal.classList.add('active');
-                adminIssue.focus();
-            }
-            
-            // Hide admin connection modal
-            function hideAdminModal() {
-                adminModal.classList.remove('active');
-            }
-            
-            // Connect to admin
-            function connectToAdmin(issue) {
-                isAdminConnected = true;
-                hideAdminModal();
-                
-                addBotMessage("Connecting you with a helpdesk administrator...");
-                
-                // Simulate connection delay
-                setTimeout(() => {
-                    addBotMessage("You're now connected with Admin Sarah. How can I help you?");
-                    
-                    if (issue) {
-                        setTimeout(() => {
-                            addUserMessage(issue);
-                            
-                            setTimeout(() => {
-                                addBotMessage("Thanks for sharing that information. Let me look into this for you...");
-                                
-                                // Simulate admin response
-                                setTimeout(() => {
-                                    addBotMessage("I've found some information that might help. [Admin would provide specific guidance here]");
-                                }, 3000);
-                            }, 1000);
-                        }, 1000);
-                    }
-                }, 2000);
-                
-                // Simulate admin disconnecting after some time
-                adminConnectionTimeout = setTimeout(() => {
-                    disconnectAdmin();
-                }, 30000); // 30 seconds
-            }
-            
-            // Disconnect from admin
-            function disconnectAdmin() {
-                if (isAdminConnected) {
-                    isAdminConnected = false;
-                    clearTimeout(adminConnectionTimeout);
-                    
-                    addBotMessage("The administrator has ended the chat. Is there anything else I can help you with?");
+            chatbotBody.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        function showAdminConnectOption() {
+            const connectDiv = document.createElement('div');
+            connectDiv.classList.add('admin-connect');
+            connectDiv.textCatalogContent = "Click here to connect with a live advisor from the International Office";
+            connectDiv.addEventListener('click', () => adminModal.classList.add('active'));
+            chatbotBody.appendChild(connectDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatbotBody.scrollTop = chatbotBody.scrollHeight;
+        }
+
+        function processUserInput(input) {
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+
+                input = input.toLowerCase();
+
+                if (input.includes('hi') || input.includes('hello') || input.includes('hey') || input.includes('hallo') || input.includes('guten')) {
+                    addBotMessage("Hallo und willkommen an der Universität Trier! 👋<br><br>I'm your virtual assistant. How can I help?");
                     showQuickReplies([
-                        "Yes, another question",
-                        "No, thank you"
+                        "Application process",
+                        "M.Sc. Natural Language Processing",
+                        "Deadlines",
+                        "International students",
+                        "Campus & facilities",
+                        "Contact live advisor"
                     ]);
                 }
-            }
-            
-            // Scroll to bottom of chat
-            function scrollToBottom() {
-                chatbotBody.scrollTop = chatbotBody.scrollHeight;
-            }
-            
-            // Event listeners
-            sendButton.addEventListener('click', function() {
-                sendMessage();
-            });
-            
-            userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
+                else if (input.includes('application') || input.includes('apply') || input.includes('bewerbung') || input.includes('bewerben') || input.includes('porta')) {
+                    addBotMessage("The application is open via the PORTA portal!<br><br>→ <a href='https://porta.uni-trier.de' target='_blank' style='color:#00aaff;'>porta.uni-trier.de</a><br><br>No NC — reviewed case-by-case.<br>Required: Transcript, CV, motivation letter, English proof (IELTS 6.5+).");
+                    showQuickReplies(["Deadlines", "Required documents", "International applicants"]);
                 }
-            });
-            
-            cancelAdmin.addEventListener('click', function() {
-                hideAdminModal();
-            });
-            
-            connectAdmin.addEventListener('click', function() {
-                const issue = adminIssue.value.trim();
-                connectToAdmin(issue);
-                adminIssue.value = '';
-            });
-            
-            // Send message function
-            function sendMessage() {
-                const message = userInput.value.trim();
-                if (message) {
-                    addUserMessage(message);
-                    userInput.value = '';
-                    processUserInput(message);
+                else if (input.includes('nlp') || input.includes('natural language') || input.includes('processing') || input.includes('linguistics') || input.includes('computational')) {
+                    addBotMessage("The M.Sc. in Natural Language Processing is an English-taught program focusing on AI for language, machine translation, and digital humanities.<br><br>→ <a href='https://www.uni-trier.de/en/studium/studienangebot/studiengaenge-von-a-z/english-taught-masters-courses-1/natural-language-processing-master-of-science-1-subject-study-information-en' target='_blank' style='color:#00aaff;'>Program details</a><br><br>30 ECTS in CS/linguistics required.");
+                    showQuickReplies(["Application process", "Deadlines", "Contact live advisor"]);
                 }
+                else if (input.includes('deadline') || input.includes('frist') || input.includes('due') || input.includes('when') || input.includes('until')) {
+                    addBotMessage("Winter Semester 2025/26 deadlines (estimated based on current patterns):<br>• Non-EU: January 15, 2026<br>• EU: March 15, 2026<br><br>Check PORTA for exact dates!");
+                    showQuickReplies(["Application process", "International students"]);
+                }
+                else if (input.includes('international') || input.includes('visa') || input.includes('ausländisch') || input.includes('foreign')) {
+                    addBotMessage("Trier welcomes international students!<br><br>Support: International Office (international@uni-trier.de), buddy program, German courses.<br>→ <a href='https://www.uni-trier.de/en/international' target='_blank' style='color:#00aaff;'>International Office</a>");
+                    showQuickReplies(["Visa help", "Accommodation", "Contact live advisor"]);
+                }
+                else if (input.includes('campus') || input.includes('mensa') || input.includes('library') || input.includes('facilities')) {
+                    addBotMessage("Trier has two beautiful campuses with modern facilities, 24h library, Mensa, sports center.<br><br>Trier is Germany's oldest city — UNESCO sites like Porta Nigra nearby!");
+                }
+                else {
+                    addBotMessage("I can help with the most common topics. Choose one or connect with a live advisor:");
+                    showQuickReplies([
+                        "Application process",
+                        "M.Sc. Natural Language Processing",
+                        "Deadlines",
+                        "International students",
+                        "Campus & facilities",
+                        "Contact live advisor"
+                    ]);
+                    showAdminConnectOption();
+                }
+            }, 1000 + Math.random() * 1500);
+        }
+
+        sendButton.addEventListener('click', () => {
+            const message = userInput.value.trim();
+            if (message) {
+                addUserMessage(message);
+                userInput.value = '';
+                processUserInput(message);
             }
-            
-            // Initialize with chatbot hidden
-            initChatbot();
         });
-    </script>
+
+        userInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') sendButton.click();
+        });
+
+        cancelAdmin.addEventListener('click', () => adminModal.classList.remove('active'));
+        connectAdmin.addEventListener('click', () => {
+            const issue = adminIssue.value.trim();
+            addBotMessage("Connecting you to the International Office...");
+            setTimeout(() => {
+                addBotMessage("You're connected! An advisor will respond via email (international@uni-trier.de) within 1-2 days.");
+                if (issue) addUserMessage(issue);
+            }, 2000);
+            adminModal.classList.remove('active');
+            adminIssue.value = '';
+        });
+
+        // Initial quick replies
+        setTimeout(() => {
+            showQuickReplies([
+                "Application process",
+                "M.Sc. Natural Language Processing",
+                "Deadlines",
+                "International students",
+                "Campus & facilities",
+                "Contact live advisor"
+            ]);
+        }, 800);
+    });
+</script>
 </body>
 </html>
