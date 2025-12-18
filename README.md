@@ -52,14 +52,10 @@ No installation required!
 
 ## Related Projects
 
-See my other NLP project:  
-[Persian ↔ German Poetic Translator](https://github.com/Josephsjr96/[your-translator-repo-name]) – A desktop application comparing NLLB-200 and M2M100 on Persian poetry with BLEU and semantic similarity evaluation.
+
 
 ---
+joe
 
-**Yousef Sanjari**  
-B.Sc. Computer Software Engineering  
-Applicant – M.Sc. Natural Language Processing  
-Universität Trier, Winter Semester 2025/2026
 
 *Feel free to open issues or fork this project!*
